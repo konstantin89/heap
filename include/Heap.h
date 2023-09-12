@@ -11,43 +11,72 @@ class Heap
 public:
     using ContainerType = std::vector<DataType>;
     using DataConstRef = const DataType&;
-    using DataUniversalRef = DataType&&;
     using SizeType  = std::size_t;
 
-    Heap();
+    /**
+     * @brief Constructor 
+     */ 
+    Heap() = default;
 
-    ~Heap();
+    /**
+     * @brief Destructor 
+     */ 
+    ~Heap() = default;
 
     /**
      * @brief Copy constructor 
      */ 
-    Heap(const Heap& other);
+    Heap(const Heap& other) = default;
 
     /**
      * @brief Copy assignment operator 
      */ 
-    Heap& operator=(const Heap& other);
+    Heap& operator=(const Heap& other) = default;
 
     /**
      * @brief Move constructor
      */ 
-    Heap(Heap&& other);
+    Heap(Heap&& other) = default;
 
     /**
      * @brief Move assignment operator 
      */ 
-    Heap& operator=(Heap&& other) noexcept;
+    Heap& operator=(Heap&& other) noexcept = default;
 
+    /**
+     * @brief Access the top element
+     * @returns Const reference to the top element
+     */ 
     DataConstRef Top() const;
 
+    /**
+     * @brief Check if heap is empty
+     * @returns true iff heap is empty
+     */ 
     bool IsEmpty() const;
 
+    /**
+     * @brief Check heap size
+     * @returns Number of elements in the heap
+     */ 
     SizeType Size() const;
 
-    void Push(DataUniversalRef data);
+    /**
+     * @brief Emplace element in heap. 
+     * @param arguments to create new object and insert to heap
+     */ 
+    template< class... Args >
+    void Emplace(Args&&... args);
 
+    /**
+     * @brief Push element in heap. 
+     * @param data to push
+     */ 
     void Push(DataConstRef data);
 
+    /**
+     * @brief Pop top element from heap
+     */ 
     void Pop();
 
 
@@ -57,18 +86,6 @@ private:
 private:
     void heapify(size_t index);
 };
-
-template <typename DataType>
-Heap<DataType>::Heap()
-{
-
-}
-
-template <typename DataType>
-Heap<DataType>::~Heap()
-{
-
-}
 
 template <typename DataType>
 typename Heap<DataType>::DataConstRef Heap<DataType>::Top() const
@@ -141,6 +158,29 @@ void Heap<DataType>::Push(DataConstRef data)
         else 
         {
             break; // Stop if the parent is greater or equal
+        }
+    }
+}
+
+template <typename DataType>
+template< typename... Args >
+void Heap<DataType>::Emplace(Args&&... args)
+{
+    mContainer.emplace_back(std::forward<Args>(args)...);
+
+    auto index = mContainer.size() - 1;
+
+    while (index > 0) 
+    {
+        size_t parent = (index - 1) / 2;
+        if (mContainer.at(index) > mContainer.at(parent)) 
+        {
+            std::swap(mContainer.at(index), mContainer.at(parent));
+            index = parent;
+        } 
+        else 
+        {
+            break;
         }
     }
 }
